@@ -18,8 +18,8 @@ const size_t AttackPriority = 1;
 const size_t BaseDefensePriority = 2;
 const size_t ScoutDefensePriority = 3;
 const size_t DropPriority = 4;
-int prev_frame = 0;         //chost
-int act_frame = 0;          //chost
+int prev_frame = 0;         
+int act_frame = 0;          
 bool gonnaRegroup = false;
 int Army_size = 0;
 CombatCommander::CombatCommander()
@@ -31,11 +31,11 @@ void CombatCommander::initializeSquads()
 {
     SquadOrder idleOrder(SquadOrderTypes::Idle, BWAPI::Position(BWAPI::Broodwar->self()->getStartLocation()), 100, "Chill Out");
     m_squadData.addSquad("Idle", Squad("Idle", idleOrder, IdlePriority));
-    //std::cout << "init some sq start"; // chost
+    
     // the main attack squad that will pressure the enemy's closest base location
     SquadOrder mainAttackOrder(SquadOrderTypes::Attack, getMainAttackLocation(), 800, "Attack Enemy Base");
     m_squadData.addSquad("MainAttack", Squad("MainAttack", mainAttackOrder, AttackPriority));
-    //std::cout << "init some sq end"; // chost
+    
 
     BWAPI::Position ourBasePosition = BWAPI::Position(BWAPI::Broodwar->self()->getStartLocation());
 
@@ -56,9 +56,9 @@ void CombatCommander::initializeSquads()
 
 
     
-        SquadOrder CorsairRush(SquadOrderTypes::Corsair, enemyBasePosition, 8000, "Attack enemy Overlords");
+   SquadOrder CorsairRush(SquadOrderTypes::Corsair, enemyBasePosition, 8000, "Attack enemy Overlords");
         
-        m_squadData.addSquad("CorsairRush", Squad("CorsairRush", CorsairRush, AttackPriority));
+   m_squadData.addSquad("CorsairRush", Squad("CorsairRush", CorsairRush, AttackPriority));
         
     
 
@@ -109,7 +109,7 @@ void CombatCommander::updateIdleSquad()
     Squad & idleSquad = m_squadData.getSquad("Idle");
     for (auto & unit : m_combatUnits)
     {
-        //std::cout << "Idlesquad"; //chost
+        
         // if it hasn't been assigned to a squad yet, put it in the low priority idle squad
         if (m_squadData.canAssignUnitToSquad(unit, idleSquad))
         {
@@ -121,30 +121,23 @@ void CombatCommander::updateIdleSquad()
 
 void CombatCommander::updateCorsairSquads()
 {
+    //after corsair is trained, the unit is added into corsair Squad 
     Squad & corsairSquad = m_squadData.getSquad("CorsairRush");
 
     for (auto& unit : m_combatUnits)
     {
         if (unit->getType() == BWAPI::UnitTypes::Protoss_Corsair && m_squadData.canAssignUnitToSquad(unit, corsairSquad))
         {
-            m_squadData.assignUnitToSquad(unit, corsairSquad);
-            std::cout << unit->getType() << "Added to corsair\n";
+            m_squadData.assignUnitToSquad(unit, corsairSquad);         
         }
         else
         {
-
             continue;
-        }
-        
+        }     
     }
 
-    //std::cout << "somewhere in corsairupdate"; //chost
     SquadOrder corsairOrder(SquadOrderTypes::Corsair, getMainAttackLocation(), 4000, "Attack Enemy Base");
     corsairSquad.setSquadOrder(corsairOrder);
-
-    //int x = 0;
-    //for (auto& unit : corsairSquad.getUnits()){x++;std::cout << x;} // chost check èi pridava borcov do squadu
-    
 
 }
 
@@ -155,7 +148,7 @@ void CombatCommander::updateAttackSquads()
 
     for (auto & unit : m_combatUnits)
     {
-        //std::cout << "attacksquad"; //chost
+        
         if (unit->getType() == BWAPI::UnitTypes::Zerg_Scourge && UnitUtil::GetAllUnitCount(BWAPI::UnitTypes::Zerg_Hydralisk) < 30)
         {
             continue;
@@ -165,11 +158,11 @@ void CombatCommander::updateAttackSquads()
         if (!unit->getType().isWorker() && (unit->getType() != BWAPI::UnitTypes::Zerg_Overlord) && m_squadData.canAssignUnitToSquad(unit, mainAttackSquad))
         {
             m_squadData.assignUnitToSquad(unit, mainAttackSquad);
-            //std::cout << unit->getType() << "Added to attack\n"; //chost
+            
         }
     }
 
-    //std::cout << "somewhere in attackupdate"; //chost
+    
     SquadOrder mainAttackOrder(SquadOrderTypes::Attack, getMainAttackLocation(), 800, "Attack Enemy Base");
     mainAttackSquad.setSquadOrder(mainAttackOrder);
     
@@ -564,9 +557,9 @@ BWAPI::Position CombatCommander::getMainAttackLocation()
             if (unit->getType() == BWAPI::UnitTypes::Zerg_Overlord && BWAPI::Broodwar->self()->allUnitCount(BWAPI::UnitTypes::Protoss_Corsair) > 0)
             {
 
-                if (Config::Strategy::StrategyName == "Protoss_Corsair" && CorsairZealot == false)
+                if ( CorsairZealot == false)
                 {
-                    //startedBaseSearch = -1;               
+                                  
                     return unit->getPosition();
                 }
                 else
@@ -590,16 +583,12 @@ BWAPI::Position CombatCommander::getMainAttackLocation()
     {
 
 
-        if (BWAPI::Broodwar->getFrameCount() < 6750 ) {
-            BWAPI::TilePosition chokePos = MapTools::findCLosestChokepointPosEnemy();
-            startedBaseSearch = -1;
-            return BWAPI::Position(chokePos.x * 32, chokePos.y * 32);
-        }
+       
 
 
 
 
-        //chost sem pridam nech èakajú na chokepointe
+        // èakajú na chokepointe
         // First choice overrule : If we feel zerglingRush coming, stay at chokepoint
         if (BWAPI::Broodwar->getFrameCount() < 6750 && (zerglingRush || BWAPI::Broodwar->self()->allUnitCount(BWAPI::UnitTypes::Protoss_Forge > 0) )){
             BWAPI::TilePosition chokePos = MapTools::findCLosestChokepointPos();
@@ -620,6 +609,28 @@ BWAPI::Position CombatCommander::getMainAttackLocation()
         }
 
 
+            
+
+
+        if (
+            (BWAPI::Broodwar->enemy()->getRace() == BWAPI::Races::Terran && BWAPI::Broodwar->getFrameCount() < 6750 && Config::Strategy::StrategyName == "Protoss_Concluded") || (BWAPI::Broodwar->enemy()->getRace() != BWAPI::Races::Terran && BWAPI::Broodwar->getFrameCount() < 9750 && Config::Strategy::StrategyName == "Protoss_Concluded")) {
+            BWAPI::TilePosition chokePosNew = MapTools::findCLosestChokepointPosEnemyNew();
+            BWAPI::TilePosition chokePos = MapTools::findCLosestChokepointPosEnemy();
+            startedBaseSearch = -1;
+
+            if (chokePosNew == BWAPI::TilePositions::None)
+            {
+                return BWAPI::Position(chokePos.x * 32, chokePos.y * 32);
+                
+            }
+            else
+
+            { 
+                return BWAPI::Position(chokePosNew.x * 32, chokePosNew.y * 32);
+            }
+            
+            return BWAPI::Position(chokePos.x * 32, chokePos.y * 32);
+        }
         
 
 
@@ -632,7 +643,7 @@ BWAPI::Position CombatCommander::getMainAttackLocation()
         bool onlyOverlords = true;
         for (auto & unit : enemyUnitsInArea)
         {
-            if (unit->getType() != BWAPI::UnitTypes::Zerg_Overlord  )//chost
+            if (unit->getType() != BWAPI::UnitTypes::Zerg_Overlord  )
             {
                 onlyOverlords = false;
             }
@@ -688,7 +699,7 @@ BWAPI::Position CombatCommander::getMainAttackLocation()
             startedBaseSearch = BWAPI::Broodwar->getFrameCount();
         return BWAPI::Position(Global::Map().getLeastRecentlySeenBaseEnemy());
     }
-    else if (BWAPI::Broodwar->getFrameCount() > 100) //chost
+    else if (BWAPI::Broodwar->getFrameCount() > 100) 
         return  BWAPI::Position(Global::Map().getLeastRecentlySeenStartingBase());
 
     return BWAPI::Position(Global::Map().getLeastRecentlySeenTile());

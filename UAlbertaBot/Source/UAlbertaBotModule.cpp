@@ -101,8 +101,9 @@ void UAlbertaBotModule::onEnd(bool isWinner)
         if (outputFile.is_open()) {
             // Write text to the file
             outputFile << "Current time: " << buffer << "\t";
-            outputFile << "Win\n";
+            outputFile << "Win\t";
 
+            outputFile << "Framecount: " << BWAPI::Broodwar->getFrameCount() << "\n";
             // Close the file when done
             outputFile.close();
 
@@ -134,8 +135,10 @@ void UAlbertaBotModule::onEnd(bool isWinner)
             // Write text to the file
 
             outputFile << "Current time: " << buffer << "\t";
-            outputFile << "Lose\n";
 
+            outputFile << "Lose\t";
+
+            outputFile << "Framecount: " << BWAPI::Broodwar->getFrameCount() << "\n";
             // Close the file when done
             outputFile.close();
 

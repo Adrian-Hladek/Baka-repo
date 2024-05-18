@@ -91,6 +91,8 @@ public:
     const std::vector<BWAPI::TilePosition> & getClosestTilesTo(const BWAPI::Position & pos) const;
 
     static void resetCachedData();
+    static void resetCachedDataNew();
+    static BWAPI::TilePosition MapTools::findCLosestChokepointPosEnemyNew();
     static BWAPI::TilePosition MapTools::findCLosestChokepointPosEnemy();
     static BWAPI::TilePosition MapTools::findCLosestChokepointPos();
     const BWEM::ChokePoint* findCLosestChokepoint() const;

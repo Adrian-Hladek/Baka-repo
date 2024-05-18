@@ -103,8 +103,8 @@ int main(int argc, char * argv[])
 			// If we are successfully in a game, call the module to play the game
 			if (BWAPI::Broodwar->isInGame())
 			{
-				Config::Micro::UseSparcraftSimulation = true;
-				std::cout << Config::Micro::UseSparcraftSimulation << " Sparcraft\n";
+				//Config::Micro::UseSparcraftSimulation = true;
+				//std::cout << Config::Micro::UseSparcraftSimulation << " Sparcraft\n";
 				std::cout << "Playing game " << gameCount++ << " on map " << BWAPI::Broodwar->mapFileName() << "\n";
 				
 				

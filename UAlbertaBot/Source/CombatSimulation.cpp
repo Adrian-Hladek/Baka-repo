@@ -32,7 +32,7 @@ void CombatSimulation::setCombatUnits(const BWAPI::Position & center, const int 
             continue;
         }
 
-        if (Global::Info().isCombatUnit(unit->getType()) && (SparCraft::System::isSupportedUnitType(unit->getType()) ))//chost
+        if (Global::Info().isCombatUnit(unit->getType()) && (SparCraft::System::isSupportedUnitType(unit->getType()) ))
         {
             try
             {

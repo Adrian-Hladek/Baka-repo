@@ -21,63 +21,13 @@ void CorsairManager::assignTargetsPatrol(const BWAPI::Unitset& targets)
     // figure out targets
     BWAPI::Unitset corsairUnitTargets;
     std::copy_if(targets.begin(), targets.end(), std::inserter(corsairUnitTargets, corsairUnitTargets.end()), [](BWAPI::Unit u) { return u->isVisible(); });
-    //std::cout << "ManagerPatrolmain\n"; //chost
+    
     for (auto& corsairUnit : corsairUnits)
     {
-        // train sub units such as scarabs or interceptors
-        //trainSubUnits(corsairUnit);
-        //std::cout << "ManagerPatrol\n"; //chost
-        //std::cout << corsairUnit << " Unit\n"; 
-        //std::cout << corsairUnit->isPatrolling() << "can patrol\n";
-        //std::cout << m_order.getPosition() << " Pos\n";
+        
         Micro::SmartAttackPatrol(corsairUnit, m_order.getPosition());
 
-        //std::cout << corsairUnit->isPatrolling() <<"is patroling\n";
        
-        //std::cout << "ManagerPatrolend\n";
-        // if the order is to attack or defend
-        /*if (m_order.getType() == SquadOrderTypes::Attack || m_order.getType() == SquadOrderTypes::Defend)
-        {
-            // if there are targets
-            if (!corsairUnitTargets.empty())
-            {
-                // find the best target for this zealot
-                BWAPI::Unit target = getTarget(corsairUnit, corsairUnitTargets);
-
-                if (target && Config::Debug::DrawUnitTargetInfo)
-                {
-                    BWAPI::Broodwar->drawLineMap(corsairUnit->getPosition(), corsairUnit->getTargetPosition(), BWAPI::Colors::Purple);
-                }
-
-
-                // attack it
-                if (Config::Micro::KiteWithRangedUnits)
-                {
-                    if (corsairUnit->getType() == BWAPI::UnitTypes::Zerg_Mutalisk || corsairUnit->getType() == BWAPI::UnitTypes::Terran_Vulture)
-                    {
-                        Micro::MutaDanceTarget(corsairUnit, target);
-                    }
-                    else
-                    {
-                        Micro::SmartKiteTarget(corsairUnit, target);
-                    }
-                }
-                else
-                {
-                    Micro::SmartAttackUnit(corsairUnit, target);
-                }
-            }
-            // if there are no targets
-            else
-            {
-                // if we're not near the order position
-                if (corsairUnit->getDistance(m_order.getPosition()) > 100)
-                {
-                    // move to it
-                    Micro::SmartAttackPatrol(corsairUnit, m_order.getPosition());
-                }
-            }
-        }*/
     }
 }
 
@@ -162,7 +112,7 @@ std::pair<BWAPI::Unit, BWAPI::Unit> CorsairManager::findClosestUnitPair(const BW
     return closestPair;
 }
 
-// get a target for the zealot to attack
+// get a target for the corsair to attack
 BWAPI::Unit CorsairManager::getTarget(BWAPI::Unit corsairUnit, const BWAPI::Unitset& targets)
 {
     int bestPriorityDistance = 1000000;

@@ -21,7 +21,7 @@ class CombatCommander
     void updateDropSquads();
     void updateIdleSquad();
     void initializeSquads();
-    void updateCorsairSquads(); //chost
+    void updateCorsairSquads(); 
     void updateDefenseSquadUnits(Squad & defenseSquad, const size_t & flyingDefendersNeeded, const size_t & groundDefendersNeeded);
 
     int  defendWithWorkers();

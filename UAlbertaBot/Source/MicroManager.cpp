@@ -40,8 +40,7 @@ void MicroManager::execute(const SquadOrder & inputOrder)
     // Nothing to do if we have no units
     if (m_units.empty() || !(inputOrder.getType() == SquadOrderTypes::Attack || inputOrder.getType() == SquadOrderTypes::Defend || inputOrder.getType() == SquadOrderTypes::Corsair))
     {
-        //std::cout << m_order.getType() << "type\n"; //chost
-        //std::cout << "we do not have units ?\n";
+        
         return;
     }
 
@@ -50,7 +49,7 @@ void MicroManager::execute(const SquadOrder & inputOrder)
 
     // Discover enemies within region of interest
     BWAPI::Unitset nearbyEnemies;
-    //std::cout << "Execute\n"; //chost
+   
     // if the order is to defend, we only care about units in the radius of the defense
     if (m_order.getType() == SquadOrderTypes::Defend)
     {
@@ -80,12 +79,7 @@ void MicroManager::execute(const SquadOrder & inputOrder)
     }
     // the following block of code attacks all units on the way to the order position
     // we want to do this if the order is attack, defend, or harass
-    //std::cout << "Execute2\n";//chost
-    //std::cout << SquadOrderTypes::Corsair << "sedmicka\n"; //chost
-    //std::cout << m_order.getType() << "type\n"; //chost
-    //std::cout << SquadOrderTypes::Attack << "sq\n"; //chost
-    //if (m_order.getType() == SquadOrderTypes::Corsair)//chost{std::cout << "Execute3\n";//chost}
-    //std::cout << "Execute4\n"; //chost
+    
     if (m_order.getType() == SquadOrderTypes::Attack || m_order.getType() == SquadOrderTypes::Defend || m_order.getType() == SquadOrderTypes::Corsair)
     {
         // if this is a worker defense force
@@ -153,22 +147,19 @@ void MicroManager::regroup(const BWAPI::Position & regroupPosition) const
         // if the unit is outside the regroup area
         if (unitDistanceFromBase > regroupDistanceFromBase)
         {
-            Micro::SmartMove(unit, ourBasePosition);    //chost s
-            //std::cout << unit;
-            //std::cout << "att rand";
+            Micro::SmartMove(unit, ourBasePosition);    
+            
         }
         else if (unit->getDistance(regroupPosition) > 100)
         {
             // regroup it
             Micro::SmartMove(unit, regroupPosition);
-            //std::cout << unit;
-            //std::cout << "att 7";
+            
         }
         else
         {
             Micro::SmartAttackMove(unit, unit->getPosition());
-            //std::cout << unit;//chost m
-            //std::cout << "attm2";
+           
         }
     }
 }

@@ -17,10 +17,10 @@ namespace Config
 
     namespace Strategy
     {
-        std::string ProtossStrategyName     = "Protoss_ZealotRush";
+        std::string ProtossStrategyName     = "Protoss_Concluded";
         std::string TerranStrategyName      = "Terran_MarineRush";
         std::string ZergStrategyName        = "Zerg_3HatchMuta";
-        std::string StrategyName            = "Protoss_ZealotRush";
+        std::string StrategyName            = "Protoss_Concluded";
         std::string ReadDir                 = "bwapi-data/read/";
         std::string WriteDir                = "bwapi-data/write/";
         bool GasStealWithScout              = false;
@@ -66,7 +66,7 @@ namespace Config
     
     namespace Debug								
     {
-        bool DrawGameInfo                   = true;
+        bool DrawGameInfo                   = false;
         bool DrawUnitHealthBars             = true;
         bool DrawProductionInfo             = true;
         bool DrawBuildOrderSearchInfo       = false;
@@ -84,7 +84,7 @@ namespace Config
         bool DrawUnitTargetInfo             = false;
         bool DrawSquadInfo                  = false;
         bool DrawBOSSStateInfo              = false;
-        bool DrawWalkableSectors            = true;
+        bool DrawWalkableSectors            = false;
         bool DrawTileInfo                   = false;
         bool PrintModuleTimeout             = false;	
 

@@ -48,12 +48,10 @@ void Micro::SmartAttackUnit(BWAPI::Unit attacker, BWAPI::Unit target)
 
 void Micro::SmartAttackPatrol(BWAPI::Unit attacker, const BWAPI::Position& targetPosition)
 {
-    //UAB_ASSERT(attacker, "SmartAttackMove: Attacker not valid");
-    //UAB_ASSERT(targetPosition.isValid(), "SmartAttackMove: targetPosition not valid");
-    //std::cout << "smartpatrol\n"; //chost
+    
     if (!attacker || !targetPosition.isValid())
     {
-        std::cout << "jump hned begin\n";
+        
         return;
     }
 
@@ -63,7 +61,7 @@ void Micro::SmartAttackPatrol(BWAPI::Unit attacker, const BWAPI::Position& targe
     // if we have issued a command to this unit already this frame, ignore this one
     if (attacker->getLastCommandFrame() >= BWAPI::Broodwar->getFrameCount() || attacker->isAttackFrame())
     {
-        //std::cout << "same kommand v rovnaký frame\n"; //chost
+        
         return;
     }
 
@@ -91,15 +89,9 @@ void Micro::SmartAttackPatrol(BWAPI::Unit attacker, const BWAPI::Position& targe
 
     BWAPI::Position enemyBasePosition = BWAPI::Position(BWAPI::Broodwar->enemy()->getStartLocation());
     // if nothing prevents it, attack the target
-    //attacker->patrol(targetPosition);//chost any attack
-    //std::cout << enemyBasePosition << " enemy base \n"; //chost
-    //std::cout << targetPosition << " target position\n"; //chost
-    //std::cout << "pred patrol\n"; //chost
-    //attacker->move(enemyBasePosition);  //chost imp
-    attacker->attack(targetPosition);  //chost imp
-    //std::cout << "after patrol\n"; //chost
-    //std::cout << attacker;
-    //std::cout << "attacker";
+    
+    attacker->attack(targetPosition);  
+    
     TotalCommands++;
 
     if (Config::Debug::DrawUnitTargetInfo)
@@ -173,9 +165,8 @@ void Micro::SmartMove(BWAPI::Unit attacker, const BWAPI::Position & targetPositi
     }
 
     // if nothing prevents it, attack the target
-    attacker->move(targetPosition);//chost any attack
-    //std::cout << attacker;
-    //std::cout << "attacker";
+    attacker->move(targetPosition);
+   
     TotalCommands++;
 
     if (Config::Debug::DrawUnitTargetInfo)
@@ -214,9 +205,8 @@ void Micro::SmartRightClick(BWAPI::Unit unit, BWAPI::Unit target)
     }
 
     // if nothing prevents it, attack the target
-    unit->rightClick(target); //chost unit
-    //std::cout << unit;
-    //std::cout << "unit";
+    unit->rightClick(target); 
+    
     TotalCommands++;
 
     if (Config::Debug::DrawUnitTargetInfo)

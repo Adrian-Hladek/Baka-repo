@@ -292,21 +292,36 @@ void BaseLocation::draw()
     Global::Map().drawTile(closestChokepoint.x, closestChokepoint.y, BWAPI::Color(0, 255, 0));
     
 
-    //const BaseLocation* enemyBaseLocation = Global::Bases().getPlayerStartingBaseLocation(BWAPI::Broodwar->enemy());
+    const BaseLocation* enemyBaseLocation = Global::Bases().getPlayerStartingBaseLocation(BWAPI::Broodwar->enemy());
     const BWAPI::TilePosition closestChokepointPos = MapTools::findCLosestChokepointPosEnemy();
-
+    const BWAPI::TilePosition closestChokepointPosNew = MapTools::findCLosestChokepointPosEnemyNew();
     if (closestChokepointPos == BWAPI::TilePositions::None) {
 
 
-        std::cerr << "Failed to find closest chokepoint position" << std::endl;
+        //std::cerr << "Failed to find closest chokepoint position" << std::endl;
     }
     else
     {
-        
+        //Global::Map().drawTile(closestChokepointPosNew.x, closestChokepointPosNew.y, BWAPI::Color(0, 0, 255));
+
         Global::Map().drawTile(closestChokepointPos.x, closestChokepointPos.y, BWAPI::Color(255, 0, 0));
-        std::cout << "CK" << closestChokepoint << "\n";
-        std::cout << "enm CK" << closestChokepointPos << "\n";
+
+
     }
+    
+    if (closestChokepointPosNew == BWAPI::TilePositions::None) {
+
+
+        //std::cerr << "Failed to find closest chokepoint position" << std::endl;
+    }
+    else
+    {
+        Global::Map().drawTile(closestChokepointPosNew.x, closestChokepointPosNew.y, BWAPI::Color(0, 0, 255));
+
+        
+      
+    }
+    
 }
 
 bool BaseLocation::isMineralOnly() const

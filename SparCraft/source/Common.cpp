@@ -40,11 +40,7 @@ namespace SparCraft
                 std::cout << "Units with just air weapons currently not supported correctly : " << type.getName();
                 System::FatalError("Units with just air weapons currently not supported correctly: " + type.getName());
                 }
-            //if (type == BWAPI::UnitTypes::Protoss_Corsair || Config::Strategy::StrategyName != "Protoss_Corsair") //chost new
-            //{
-            //    std::cout << "Units with just air weapons currently not supported correctly : " << type.getName();
-            //    System::FatalError("Units with just air weapons currently not supported correctly: " + type.getName());  
-            //}
+            
 
             if (type.isBuilding() && !(type == BWAPI::UnitTypes::Protoss_Photon_Cannon || type == BWAPI::UnitTypes::Zerg_Sunken_Colony || type == BWAPI::UnitTypes::Terran_Missile_Turret))
             {
@@ -86,10 +82,7 @@ namespace SparCraft
                 return false;
             }
 
-            //if (type == BWAPI::UnitTypes::Protoss_Corsair || Config::Strategy::StrategyName != "Protoss_Corsair") //chost new
-            //{
-            //    return false;
-            //}
+            
 
             if (type.isBuilding() && !(type == BWAPI::UnitTypes::Protoss_Photon_Cannon || type == BWAPI::UnitTypes::Zerg_Sunken_Colony || type == BWAPI::UnitTypes::Terran_Missile_Turret))
             {

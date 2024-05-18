@@ -20,6 +20,8 @@ const int actionY[LegalActions] ={0, 0, 1, -1};
 BWAPI::TilePosition cachedChokepointPos = BWAPI::TilePositions::None;
 bool chokepointPosCached = false;
 
+BWAPI::TilePosition cachedChokepointPosNew = BWAPI::TilePositions::None;
+bool chokepointPosCachedNew = false;
 
 // constructor for MapTools
 MapTools::MapTools()
@@ -30,6 +32,7 @@ MapTools::MapTools()
 void MapTools::onStart()
 {
     MapTools::resetCachedData();
+    MapTools::resetCachedDataNew();
     PROFILE_FUNCTION();
 
     m_width          = BWAPI::Broodwar->mapWidth();
@@ -785,8 +788,125 @@ void MapTools::resetCachedData()
     chokepointPosCached = false;
 }
 
+void MapTools::resetCachedDataNew()
+{
+    // Reset the cached location and flag
+    cachedChokepointPosNew = BWAPI::TilePositions::None;
+    chokepointPosCachedNew = false;
+}
+
 
 // Define the function to find the closest chokepoint to the enemy base
+
+BWAPI::TilePosition MapTools::findCLosestChokepointPosEnemyNew()
+{
+    // If the location has been cached, return the cached value
+    if (chokepointPosCachedNew) {
+        // Return the cached chokepoint position
+        return cachedChokepointPosNew;
+    }
+
+    BWAPI::TilePosition closestChokepointEnemy;
+
+    // Iterate through all enemy units to find their main building
+    for (auto& unit : BWAPI::Broodwar->enemy()->getUnits()) {
+        //if (unit->getType().isBuilding() && unit->getType().isResourceDepot()) toto padalo pri teranovi z nejakeho dovodu
+        if (unit->getType().isBuilding())
+        {
+            // Found the enemy main building (supply depot), use its position as the target location
+            const BWAPI::TilePosition enemyMainBuildingPos = unit->getTilePosition();
+
+            // Find the nearest area to the enemy base location
+            const BWEM::Area* ourAreaEnemy = theMap.GetNearestArea(enemyMainBuildingPos);
+
+            // Check if BWEM successfully found the nearest area
+            if (ourAreaEnemy) {
+                // Iterate through lengths from 3 range up to 10
+                for (int length = 5; length <= 8; ++length) {
+                    // Initialize variables to store the closest chokepoint
+                    int minDistanceEnemy = INT_MAX;
+                    bool foundChokepoint = false;
+
+                    // Iterate through chokepoints in the nearest area
+                    for (auto& chokepointEnemy : ourAreaEnemy->ChokePoints()) {
+                        // Get the position of the chokepoint
+                        BWAPI::TilePosition posEnemy = BWAPI::TilePosition(chokepointEnemy->Pos(chokepointEnemy->middle).x / 4, chokepointEnemy->Pos(chokepointEnemy->middle).y / 4);
+
+                        // Calculate the distance from the chokepoint to the main building
+                        int distanceToMainBuilding = posEnemy.getApproxDistance(enemyMainBuildingPos);
+
+                        // Update the closest chokepoint if necessary
+                        if (!closestChokepointEnemy || distanceToMainBuilding < minDistanceEnemy) {
+                            closestChokepointEnemy = posEnemy;
+                            minDistanceEnemy = distanceToMainBuilding;
+                            foundChokepoint = true;
+                        }
+                    }
+
+                    if (foundChokepoint) {
+                        // Move the chokepoint towards the opposite direction by a constant distance of 'length' tiles
+                        BWAPI::TilePosition directionVector = closestChokepointEnemy - enemyMainBuildingPos;
+
+                        // Calculate magnitude of the direction vector using Pythagoras' theorem
+                        int magnitudeSquared = directionVector.x * directionVector.x + directionVector.y * directionVector.y;
+                        double magnitude = sqrt(static_cast<double>(magnitudeSquared));
+
+                        // Normalize the direction vector
+                        if (magnitude != 0) {
+                            directionVector.x = static_cast<int>(round(directionVector.x / magnitude));
+                            directionVector.y = static_cast<int>(round(directionVector.y / magnitude));
+                        }
+
+                        // Limit the distance to the specified length
+                        int distance = length;
+
+                        // Adjust the chokepoint position by moving it towards the opposite direction by the limited distance
+                        closestChokepointEnemy += directionVector * distance;
+
+                        // Check if the target location is buildable
+                        if (BWAPI::Broodwar->isBuildable(closestChokepointEnemy)) {
+                            // Cache the adjusted chokepoint position and set the flag
+                            cachedChokepointPosNew = closestChokepointEnemy;
+                            chokepointPosCachedNew = true;
+
+                            // Return the adjusted chokepoint position (closer to main building)
+                            return closestChokepointEnemy;
+                        }
+                    }
+                    else {
+                        // If no chokepoint found in the opposite direction, try in the direction towards the enemy base
+                        // You need to implement this logic based on your specific requirements or map layout
+                        // For demonstration purposes, I'll just move in the direction towards the enemy base by a constant distance of 'length' tiles
+                        BWAPI::TilePosition directionVector = enemyMainBuildingPos - closestChokepointEnemy;
+
+                        // Move the chokepoint towards the enemy base by a constant distance of 'length' tiles
+                        closestChokepointEnemy += directionVector * length;
+
+                        // Check if the target location is buildable
+                        if (BWAPI::Broodwar->isBuildable(closestChokepointEnemy)) {
+                            // Cache the adjusted chokepoint position and set the flag
+                            cachedChokepointPosNew = closestChokepointEnemy;
+                            chokepointPosCachedNew = true;
+
+                            // Return the adjusted chokepoint position (closer to main building)
+                            return closestChokepointEnemy;
+                        }
+                    }
+                }
+
+                // Return None if unable to find a suitable buildable location within all the lengths
+                return BWAPI::TilePositions::None;
+            }
+        }
+    }
+
+    // Return None if the enemy main building is not found or BWEM failed to find the nearest area
+    return BWAPI::TilePositions::None;
+}
+
+
+
+
 BWAPI::TilePosition MapTools::findCLosestChokepointPosEnemy()
 {
     // If the location has been cached, return the cached value
@@ -796,7 +916,9 @@ BWAPI::TilePosition MapTools::findCLosestChokepointPosEnemy()
 
     // Iterate through all enemy units to find their main building
     for (auto& unit : BWAPI::Broodwar->enemy()->getUnits()) {
-        if (unit->getType().isBuilding() && unit->getType().isResourceDepot()) {
+        //if (unit->getType().isBuilding() && unit->getType().isResourceDepot()) toto padalo pri teranovi z nejakeho dovodu
+        if (unit->getType().isBuilding() ) 
+        {
             // Found the enemy main building, use its position as the enemy base location
             const BWAPI::TilePosition startLocationEnemy(unit->getTilePosition());
 
@@ -804,6 +926,7 @@ BWAPI::TilePosition MapTools::findCLosestChokepointPosEnemy()
             const BWEM::Area* ourAreaEnemy = theMap.GetNearestArea(startLocationEnemy);
 
             // Check if BWEM successfully found the nearest area
+
             if (ourAreaEnemy) {
                 // Initialize variables to store the closest chokepoint
                 BWAPI::TilePosition closestChokepointEnemy;
@@ -831,13 +954,13 @@ BWAPI::TilePosition MapTools::findCLosestChokepointPosEnemy()
                 // Return the closest chokepoint
                 return closestChokepointEnemy;
             }
+            
         }
     }
 
     // Return None if the enemy main building is not found or BWEM failed to find the nearest area
     return BWAPI::TilePositions::None;
 }
-
 
 
 

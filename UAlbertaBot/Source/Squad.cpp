@@ -66,7 +66,7 @@ void Squad::update()
     else // otherwise, execute micro
     {
 
-        //std::cout << "Execute in squadcpp\n"; //chost
+        
         m_meleeManager.execute(m_order);
         m_rangedManager.execute(m_order);
         m_tankManager.execute(m_order);

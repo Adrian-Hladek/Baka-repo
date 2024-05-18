@@ -69,6 +69,10 @@ bool BuildingPlacerManager::canBuildHere(BWAPI::TilePosition position, const Bui
     }*/
 
     //returns true if we can build this type of unit here. Takes into account reserved tiles.
+
+    
+
+
     if (!BWAPI::Broodwar->canBuildHere(position, b.type, b.builderUnit))
     {
         return false;
@@ -117,7 +121,97 @@ bool BuildingPlacerManager::tileBlocksAddon(BWAPI::TilePosition position) const
 
 //returns true if we can build this type of unit here with the specified amount of space.
 //space value is stored in this->buildDistance.
-bool BuildingPlacerManager::canBuildHereWithSpace(BWAPI::TilePosition position, const Building & b, int buildDist, bool horizontalOnly) const
+/*bool BuildingPlacerManager::canBuildHereWithSpace(BWAPI::TilePosition position, const Building& b, int buildDist, bool horizontalOnly) const
+{
+    PROFILE_FUNCTION();
+
+    BWAPI::UnitType type = b.type;
+
+    // if we can't build here, we of course can't build here with space
+    if (!canBuildHere(position, b))
+    {
+        return false;
+    }
+
+    // height and width of the building
+    int width(b.type.tileWidth());
+    int height(b.type.tileHeight());
+
+    // make sure we leave space for add-ons. These types of units can have addons:
+    if (b.type == BWAPI::UnitTypes::Terran_Command_Center ||
+        b.type == BWAPI::UnitTypes::Terran_Factory ||
+        b.type == BWAPI::UnitTypes::Terran_Starport ||
+        b.type == BWAPI::UnitTypes::Terran_Science_Facility)
+    {
+        width += 2;
+    }
+
+    // define the rectangle of the building spot
+    int startx = position.x - buildDist;
+    int starty = position.y - buildDist;
+    int endx = position.x + width + buildDist;
+    int endy = position.y + height + buildDist;
+
+    if (b.type.isAddon())
+    {
+        const BWAPI::UnitType builderType = type.whatBuilds().first;
+
+        BWAPI::TilePosition builderTile(position.x - builderType.tileWidth(), position.y + 2 - builderType.tileHeight());
+
+        startx = builderTile.x - buildDist;
+        starty = builderTile.y - buildDist;
+        endx = position.x + width + buildDist;
+        endy = position.y + height + buildDist;
+    }
+
+    if (horizontalOnly)
+    {
+        starty += buildDist;
+        endy -= buildDist;
+    }
+
+    // if this rectangle doesn't fit on the map we can't build here
+    if (startx < 0 || starty < 0 || endx > BWAPI::Broodwar->mapWidth() || endx < position.x + width || endy > BWAPI::Broodwar->mapHeight())
+    {
+        return false;
+    }
+
+    // if we can't build here, or space is reserved, or it's in the resource box, we can't build here
+    for (int x = startx; x < endx; x++)
+    {
+        for (int y = starty; y < endy; y++)
+        {
+            if (!b.type.isRefinery())
+            {
+                if (!buildable(b, x, y) || m_reserveMap.get(x, y) || ((b.type != BWAPI::UnitTypes::Protoss_Photon_Cannon) && isInResourceBox(x, y)))
+                {
+                    return false;
+                }
+            }
+        }
+    }
+
+    // Check if there's a pylon in range
+    if (b.type != BWAPI::UnitTypes::Protoss_Pylon) {
+        bool pylonInRange = false;
+        for (auto& unit : BWAPI::Broodwar->enemy()->getUnits())
+        {
+            if (unit->getType() == BWAPI::UnitTypes::Protoss_Pylon && unit->getDistance(BWAPI::Position(position)) < 320)
+            {
+                pylonInRange = true;
+                break;
+            }
+        }
+        if (!pylonInRange) {
+            return false;
+        }
+    }
+
+    return true;
+}
+*/
+
+bool BuildingPlacerManager::canBuildHereWithSpace(BWAPI::TilePosition position, const Building& b, int buildDist, bool horizontalOnly) const
 {
     PROFILE_FUNCTION();
 
@@ -134,10 +228,10 @@ bool BuildingPlacerManager::canBuildHereWithSpace(BWAPI::TilePosition position, 
     int height(b.type.tileHeight());
 
     //make sure we leave space for add-ons. These types of units can have addons:
-    if (b.type==BWAPI::UnitTypes::Terran_Command_Center ||
-        b.type==BWAPI::UnitTypes::Terran_Factory ||
-        b.type==BWAPI::UnitTypes::Terran_Starport ||
-        b.type==BWAPI::UnitTypes::Terran_Science_Facility)
+    if (b.type == BWAPI::UnitTypes::Terran_Command_Center ||
+        b.type == BWAPI::UnitTypes::Terran_Factory ||
+        b.type == BWAPI::UnitTypes::Terran_Starport ||
+        b.type == BWAPI::UnitTypes::Terran_Science_Facility)
     {
         width += 2;
     }
@@ -145,8 +239,8 @@ bool BuildingPlacerManager::canBuildHereWithSpace(BWAPI::TilePosition position, 
     // define the rectangle of the building spot
     int startx = position.x - buildDist;
     int starty = position.y - buildDist;
-    int endx   = position.x + width + buildDist;
-    int endy   = position.y + height + buildDist;
+    int endx = position.x + width + buildDist;
+    int endy = position.y + height + buildDist;
 
     if (b.type.isAddon())
     {
@@ -211,8 +305,8 @@ BWAPI::TilePosition BuildingPlacerManager::getBuildLocationNear(const Building &
 
 
             double distance = unit->getDistance(depotPosition);
-            std::cout << "Depot 4: " << depotPosition << "\n";
-            std::cout << "Distance 4: " << distance << "\n";
+            //std::cout << "Depot 4: " << depotPosition << "\n";
+            
             BWAPI::Broodwar->drawCircleMap(BWAPI::Position(depotPosition), 64, BWAPI::Colors::Yellow, true);
 
             if (closestDist > distance) {
@@ -221,12 +315,17 @@ BWAPI::TilePosition BuildingPlacerManager::getBuildLocationNear(const Building &
         }
         if (closestDist > 500)
         {
+            //std::cout << "Closest dist more than 500\n";
+
             if (BWAPI::Broodwar->getFrameCount() < 10000 ||
                (BWAPI::Broodwar->mapFileName() != "(2)Destination.scx" &&
                 BWAPI::Broodwar->mapFileName() != "(2)Heartbreak Ridge.scx")) 
             {
                 // get closest chokepoint through BWEM
                 BWAPI::TilePosition closestChokepoint = UAlbertaBot::MapTools::findCLosestChokepointPos();
+
+
+                
 
                 const std::vector<BWAPI::TilePosition>& closestToChokePoint = Global::Map().getClosestTilesTo(closestChokepoint);
 
@@ -237,7 +336,7 @@ BWAPI::TilePosition BuildingPlacerManager::getBuildLocationNear(const Building &
                         BWAPI::Broodwar->hasPower(closestToChokePoint[i].x, closestToChokePoint[i].y))
                     {
 
-                        std::cout << "Building position4: " << closestToChokePoint[i] << "\n";
+                        //std::cout << "Building position4: " << closestToChokePoint[i] << "\n";
                         Global::Map().drawTile(closestToChokePoint[i].x, closestToChokePoint[i].y, BWAPI::Color(0, 255, 0));
                         return closestToChokePoint[i];
                     }
@@ -252,7 +351,7 @@ BWAPI::TilePosition BuildingPlacerManager::getBuildLocationNear(const Building &
     int numPylons = BWAPI::Broodwar->self()->completedUnitCount(BWAPI::UnitTypes::Protoss_Pylon);
     if (b.type.requiresPsi() && numPylons == 0)
     {
-        std::cout << "Building position3: " << BWAPI::TilePositions::None << "\n";
+        //std::cout << "Building position3: " << BWAPI::TilePositions::None << "\n";
         
         return BWAPI::TilePositions::None;
     }
@@ -265,13 +364,14 @@ BWAPI::TilePosition BuildingPlacerManager::getBuildLocationNear(const Building &
             //BWAPI::Broodwar->printf("Building Placer Took %d iterations, lasting %lf ms @ %lf iterations/ms, %lf setup ms", i, ms, (i / ms), ms1);
 
             //std::cout << "Building position2: " << closestToBuilding[i] << "\n";
+            //std::cout << b.type << "\n";
             Global::Map().drawTile(closestToBuilding[i].x, closestToBuilding[i].y, BWAPI::Color(0, 255, 0));
             return closestToBuilding[i];
         }
     }
 
 
-    std::cout << "Building position1: " << BWAPI::TilePositions::None << "\n";
+    //std::cout << "Building position1: " << BWAPI::TilePositions::None << "\n";
 
     return  BWAPI::TilePositions::None;
 }

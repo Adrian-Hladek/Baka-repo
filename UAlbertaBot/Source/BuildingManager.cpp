@@ -7,6 +7,7 @@
 #include "BuildingData.h"
 #include "WorkerManager.h"
 #include "BuildingPlacerManager.h"
+#include "MapTools.h"
 
 using namespace UAlbertaBot;
 
@@ -447,7 +448,17 @@ BWAPI::TilePosition BuildingManager::getBuildingLocation(const Building & b)
     }
 
     // get a position within our region
-    return m_buildingPlacer.getBuildLocationNear(b,distance,false);
+
+    
+
+
+
+    
+    
+   
+
+
+    return m_buildingPlacer.getBuildLocationNear(b,distance*1.2,false);
 }
 
 void BuildingManager::removeBuildings(const std::vector<Building> & toRemove)

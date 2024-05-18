@@ -195,13 +195,33 @@ const MetaPairVector StrategyManager::getProtossBuildOrderGoal() const
         }
     }
 
+    else if (Config::Strategy::StrategyName == "Protoss_Concluded")
+    {
+        goal.push_back(MetaPair(BWAPI::UnitTypes::Protoss_Zealot, numZealots + 8));
+
+        // once we have a 2nd nexus start making dragoons
+        if (numNexusAll >= 2 || (BWAPI::Broodwar->getFrameCount() > 10000 && BWAPI::Broodwar->self()->allUnitCount() > 30))
+        {
+            goal.push_back(MetaPair(BWAPI::UnitTypes::Protoss_Dragoon, numDragoons + 4));
+
+
+        }
+
+
+
+        if (BWAPI::Broodwar->self()->allUnitCount(BWAPI::UnitTypes::Protoss_Dragoon) > 2)
+        {
+            goal.push_back(MetaPair(BWAPI::UpgradeTypes::Singularity_Charge, 1));
+
+        }
+    }
+
+
+
     else if (Config::Strategy::StrategyName == "Protoss_CannonRush")
     {
 
-        if (BWAPI::Broodwar->getFrameCount() > 6000)
-        {
-            goal.push_back(MetaPair(BWAPI::UnitTypes::Protoss_Zealot, numZealots + 2));
-        }
+        
     }
 
     else if (Config::Strategy::StrategyName == "Protoss_Corsair")
@@ -236,10 +256,13 @@ const MetaPairVector StrategyManager::getProtossBuildOrderGoal() const
         else if (BWAPI::Broodwar->enemy()->allUnitCount(BWAPI::UnitTypes::Zerg_Guardian) < 1 && BWAPI::Broodwar->enemy()->allUnitCount(BWAPI::UnitTypes::Zerg_Queen) < 1 && BWAPI::Broodwar->enemy()->allUnitCount(BWAPI::UnitTypes::Zerg_Scourge) < 1 && BWAPI::Broodwar->enemy()->allUnitCount(BWAPI::UnitTypes::Zerg_Hydralisk) < 1 && BWAPI::Broodwar->enemy()->allUnitCount(BWAPI::UnitTypes::Zerg_Mutalisk) < 1 && CorsairZealot == false)
         {
             
+
             if (BWAPI::Broodwar->self()->allUnitCount(BWAPI::UnitTypes::Protoss_Templar_Archives) > 0 &&
                 BWAPI::Broodwar->self()->allUnitCount(BWAPI::UnitTypes::Protoss_Gateway) > 0 )
             { 
-            goal.push_back(MetaPair(BWAPI::UnitTypes::Protoss_Dark_Templar, numDarkTeplar + 1));
+            
+            goal.push_back(MetaPair(BWAPI::UnitTypes::Protoss_Dark_Templar, numDarkTeplar + 2));
+            goal.push_back(MetaPair(BWAPI::UnitTypes::Protoss_Zealot, numZealots + 4));
             }
             else
             {
@@ -287,33 +310,29 @@ const MetaPairVector StrategyManager::getProtossBuildOrderGoal() const
                 }
 
             }
-            if (numDarkTeplar > 3 && (BWAPI::Broodwar->self()->minerals() > 1000 && (BWAPI::Broodwar->self()->gas() < 200)))
-            {
-                goal.push_back(MetaPair(BWAPI::UnitTypes::Protoss_Zealot, numZealots + 2));
-            }
+            
         }
 
         else
         {
 
-            //std::cout << CorsairZealot << " 1 \n"; //chost
+
+
             CorsairZealot = true;
-            //std::cout << CorsairZealot << " 2 \n"; //chost
-            //std::cout << "ZealotRush\n";
+            goal.push_back(MetaPair(BWAPI::UnitTypes::Protoss_Zealot, numZealots + 8));
+
             if (numNexusAll >= 2 || (BWAPI::Broodwar->getFrameCount() > 10000 && BWAPI::Broodwar->self()->allUnitCount() > 40))
             {
                 goal.push_back(MetaPair(BWAPI::UnitTypes::Protoss_Dragoon, numDragoons + 4));
 
-                if (BWAPI::Broodwar->self()->minerals() > 2000 && (BWAPI::Broodwar->self()->gas() < 200)) {
-                    goal.push_back(MetaPair(BWAPI::UnitTypes::Protoss_Zealot, numZealots + 4));
-                }
+                
 
                
             }
-            else
-            {
-                goal.push_back(MetaPair(BWAPI::UnitTypes::Protoss_Zealot, numZealots + 8));
-            }
+            
+            
+                
+            
 
 
             if (BWAPI::Broodwar->self()->allUnitCount(BWAPI::UnitTypes::Protoss_Dragoon) > 2)
@@ -326,21 +345,7 @@ const MetaPairVector StrategyManager::getProtossBuildOrderGoal() const
             
             
         }
-        //Not working correct running but do not build any Canoons should be moved to production manager probably ?
-        if (BWAPI::Broodwar->self()->minerals() > 300000 ) {
-            
-            if (BWAPI::Broodwar->self()->completedUnitCount(BWAPI::UnitTypes::Protoss_Forge) > 0)
-
-            {
-                goal.push_back(MetaPair(BWAPI::UnitTypes::Protoss_Photon_Cannon, 4));
-                std::cout << numCannon << "kanoons\n";
-            }
-            else
-            {
-                goal.push_back(MetaPair(BWAPI::UnitTypes::Protoss_Forge, 1));
-                std::cout << "kanoons forge\n";
-            }
-        }
+        
         
     }
 
@@ -356,7 +361,7 @@ const MetaPairVector StrategyManager::getProtossBuildOrderGoal() const
 
     // add observer to the goal if the enemy has cloaked units
     // or if game is long add Robotics_Facility for observers
-    if (Global::Info().enemyHasCloakedUnits() && BWAPI::Broodwar->getFrameCount() > 7000 || numNexusCompleted > 2)
+    if (Global::Info().enemyHasCloakedUnits() && BWAPI::Broodwar->getFrameCount() > 7000 || numNexusCompleted > 2 || (numNexusCompleted > 1 && BWAPI::Broodwar->enemy()->getRace() == BWAPI::Races::Zerg))
     {
         goal.push_back(MetaPair(BWAPI::UnitTypes::Protoss_Robotics_Facility, 1));
 
@@ -396,6 +401,10 @@ const MetaPairVector StrategyManager::getProtossBuildOrderGoal() const
     if (BWAPI::Broodwar->self()->allUnitCount(BWAPI::UnitTypes::Protoss_Forge) == 0 && BWAPI::Broodwar->getFrameCount() > 11500) {
         goal.push_back(MetaPair(BWAPI::UnitTypes::Protoss_Forge, 1));
 
+        if (BWAPI::Broodwar->self()->allUnitCount(BWAPI::UnitTypes::Protoss_Assimilator) == 0)
+        {
+            goal.push_back(MetaPair(BWAPI::UnitTypes::Protoss_Assimilator, 1));
+        }
     }
     else if (BWAPI::Broodwar->self()->allUnitCount(BWAPI::UnitTypes::Protoss_Forge) > 0 &&
         BWAPI::Broodwar->self()->allUnitCount(BWAPI::UnitTypes::Protoss_Assimilator) > 0 &&
@@ -430,17 +439,44 @@ const MetaPairVector StrategyManager::getProtossBuildOrderGoal() const
     else if (
         BWAPI::Broodwar->self()->allUnitCount(BWAPI::UnitTypes::Protoss_Templar_Archives) > 0 &&
         BWAPI::Broodwar->self()->allUnitCount(BWAPI::UnitTypes::Protoss_Forge) > 0 &&
-        BWAPI::Broodwar->self()->allUnitCount(BWAPI::UnitTypes::Protoss_Assimilator) > 0 && BWAPI::Broodwar->getFrameCount() > 13500 &&
-        BWAPI::Broodwar->self()->getUpgradeLevel(BWAPI::UpgradeTypes::Protoss_Ground_Armor) == 2 && BWAPI::Broodwar->self()->getUpgradeLevel(BWAPI::UpgradeTypes::Protoss_Ground_Weapons) == 2)
+        BWAPI::Broodwar->self()->allUnitCount(BWAPI::UnitTypes::Protoss_Assimilator) > 0 && BWAPI::Broodwar->getFrameCount() > 15500 &&
+        BWAPI::Broodwar->self()->getUpgradeLevel(BWAPI::UpgradeTypes::Protoss_Ground_Armor) == 2 && BWAPI::Broodwar->self()->getUpgradeLevel(BWAPI::UpgradeTypes::Protoss_Ground_Weapons) == 2 && BWAPI::Broodwar->self()->getUpgradeLevel(BWAPI::UpgradeTypes::Protoss_Plasma_Shields) == 0)
     {
         goal.push_back(MetaPair(BWAPI::UpgradeTypes::Protoss_Plasma_Shields, 1));
     }
-    
-    if (BWAPI::Broodwar->self()->allUnitCount(BWAPI::UnitTypes::Protoss_Citadel_of_Adun) > 0 && BWAPI::Broodwar->getFrameCount() > 11500 && numZealots > 0 && BWAPI::Broodwar->self()->getUpgradeLevel(BWAPI::UpgradeTypes::Leg_Enhancements) == 0){
-        goal.push_back(MetaPair(BWAPI::UpgradeTypes::Leg_Enhancements, 1));
+    else if (
+        BWAPI::Broodwar->self()->allUnitCount(BWAPI::UnitTypes::Protoss_Templar_Archives) > 0 &&
+        BWAPI::Broodwar->self()->allUnitCount(BWAPI::UnitTypes::Protoss_Forge) > 0 &&
+        BWAPI::Broodwar->self()->allUnitCount(BWAPI::UnitTypes::Protoss_Assimilator) > 0 && BWAPI::Broodwar->getFrameCount() > 16500 &&
+        BWAPI::Broodwar->self()->getUpgradeLevel(BWAPI::UpgradeTypes::Protoss_Ground_Armor) == 2 && BWAPI::Broodwar->self()->getUpgradeLevel(BWAPI::UpgradeTypes::Protoss_Ground_Weapons) == 2
+        && BWAPI::Broodwar->self()->getUpgradeLevel(BWAPI::UpgradeTypes::Protoss_Plasma_Shields) == 1)
+    {
+        
+        goal.push_back(MetaPair(BWAPI::UpgradeTypes::Protoss_Ground_Weapons, 3));
+    }
+    else if (
+        BWAPI::Broodwar->self()->allUnitCount(BWAPI::UnitTypes::Protoss_Templar_Archives) > 0 &&
+        BWAPI::Broodwar->self()->allUnitCount(BWAPI::UnitTypes::Protoss_Forge) > 0 &&
+        BWAPI::Broodwar->self()->allUnitCount(BWAPI::UnitTypes::Protoss_Assimilator) > 0 && BWAPI::Broodwar->getFrameCount() > 17500 &&
+        BWAPI::Broodwar->self()->getUpgradeLevel(BWAPI::UpgradeTypes::Protoss_Ground_Armor) == 2 && BWAPI::Broodwar->self()->getUpgradeLevel(BWAPI::UpgradeTypes::Protoss_Ground_Weapons) == 3
+        && BWAPI::Broodwar->self()->getUpgradeLevel(BWAPI::UpgradeTypes::Protoss_Plasma_Shields) == 1)
+    {
+        goal.push_back(MetaPair(BWAPI::UpgradeTypes::Protoss_Ground_Armor, 3));
     }
     
+    if (BWAPI::Broodwar->self()->allUnitCount(BWAPI::UnitTypes::Protoss_Citadel_of_Adun) > 0 && BWAPI::Broodwar->getFrameCount() > 9500 && numZealots > 0 && BWAPI::Broodwar->self()->getUpgradeLevel(BWAPI::UpgradeTypes::Leg_Enhancements) == 0){
+        goal.push_back(MetaPair(BWAPI::UpgradeTypes::Leg_Enhancements, 1));
+    }
+    else if (BWAPI::Broodwar->self()->allUnitCount(BWAPI::UnitTypes::Protoss_Citadel_of_Adun) == 0 && BWAPI::Broodwar->getFrameCount() > 9500)
+    {
+        goal.push_back(MetaPair(BWAPI::UnitTypes::Protoss_Citadel_of_Adun, 1));
+    }
    
+    if (BWAPI::Broodwar->self()->allUnitCount(BWAPI::UnitTypes::Protoss_Templar_Archives) == 0 && BWAPI::Broodwar->getFrameCount() > 13500 ) {
+        goal.push_back(MetaPair(BWAPI::UnitTypes::Protoss_Templar_Archives, 1));
+    }
+    
+
 
     // if we want to expand, insert a nexus into the build order
     if (shouldExpandNow())

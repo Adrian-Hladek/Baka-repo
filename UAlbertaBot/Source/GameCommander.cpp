@@ -173,7 +173,7 @@ void GameCommander::setScoutUnits()
 				if (unit->isCompleted() && unit->getType() == BWAPI::Broodwar->self()->getRace().getWorker())
 					workerCount++;
 			}
-			if (workerCount >= 5) {    //chost worker poèet scout
+			if (workerCount >= 5) {    
 
 
 				// grab the closest worker to the supply provider to send to scout

@@ -113,7 +113,7 @@ void ProductionManager::performBuildOrderSearch()
     {
         if (!m_bossManager.isSearchInProgress())
         {
-            //std::cout << "BOSS search" << std::endl;
+           // std::cout << "BOSS search" << std::endl;
             m_bossManager.startNewSearch(Global::Strategy().getBuildOrderGoal());
         }
         
@@ -153,7 +153,7 @@ void ProductionManager::update()
             BWAPI::Broodwar->printf("Supply deadlock detected, building supply!");
         }
 
-        std::cout << "Supply deadlock detected, building supply!";
+        //std::cout << "Supply deadlock detected, building supply!";
         m_queue.queueAsHighestPriority(MetaType(BWAPI::Broodwar->self()->getRace().getSupplyProvider()), true, false);
     }
 
@@ -168,8 +168,8 @@ void ProductionManager::update()
                     && !m_buildingManager.isBeingBuilt(BWAPI::UnitTypes::Protoss_Photon_Cannon
                         && BWAPI::Broodwar->self()->allUnitCount(BWAPI::UnitTypes::Protoss_Forge) > 0))
                 {
-                   // m_queue.queueAsHighestPriority(MetaType(BWAPI::UnitTypes::Protoss_Photon_Cannon), true, false);
-                    m_queue.queueItem(BuildOrderItem(MetaType(BWAPI::UnitTypes::Protoss_Photon_Cannon), 0, true, false));
+                    m_queue.queueAsHighestPriority(MetaType(BWAPI::UnitTypes::Protoss_Photon_Cannon), true, false);
+                    //m_queue.queueItem(BuildOrderItem(MetaType(BWAPI::UnitTypes::Protoss_Photon_Cannon), 0, true, false));
                 }
 
 
@@ -351,8 +351,8 @@ void ProductionManager::update()
                 !m_buildingManager.isBeingBuilt(BWAPI::UnitTypes::Protoss_Forge))
 
             {
-                //m_queue.queueItem(BuildOrderItem(MetaType(BWAPI::UnitTypes::Protoss_Forge), 0, true, false));
-                //m_queue.queueItem(BuildOrderItem(MetaType(BWAPI::UnitTypes::Protoss_Photon_Cannon), 1, true, false));
+
+                m_queue.queueAsHighestPriority(MetaType(BWAPI::UnitTypes::Protoss_Photon_Cannon), true, false);
                 m_queue.queueAsHighestPriority(MetaType(BWAPI::UnitTypes::Protoss_Forge), true, false);
 
 
@@ -374,12 +374,7 @@ void ProductionManager::update()
                 m_queue.queueAsHighestPriority(MetaType(BWAPI::UnitTypes::Protoss_Photon_Cannon), true, false);
                 m_queue.queueAsHighestPriority(MetaType(BWAPI::UnitTypes::Protoss_Probe), true, false);
                 m_queue.queueAsHighestPriority(MetaType(BWAPI::UnitTypes::Protoss_Probe), true, false);
-               
-
                 m_queue.queueAsHighestPriority(MetaType(BWAPI::UnitTypes::Protoss_Forge), true, false);
-                //m_queue.queueItem(BuildOrderItem(MetaType(BWAPI::UnitTypes::Protoss_Forge), 0, true, false));
-                //m_queue.queueItem(BuildOrderItem(MetaType(BWAPI::UnitTypes::Protoss_Photon_Cannon), 0, true, false));
-                //m_queue.queueItem(BuildOrderItem(MetaType(BWAPI::UnitTypes::Protoss_Photon_Cannon), 0, true, false));
 
             }
 
@@ -393,27 +388,24 @@ void ProductionManager::update()
     // Check for prerequisites
 
 
-    if (BWAPI::Broodwar->getFrameCount() % 3000 == 0 && BWAPI::Broodwar->getFrameCount() > 13000 && Config::Strategy::StrategyName == "Protoss_Corsair") // chost
-    {
+    if (BWAPI::Broodwar->getFrameCount() % 2000 == 0 && BWAPI::Broodwar->getFrameCount() > 12000 ) // chost
+    {   
+        //každých 2000 framov vymaže prio v build ordere a pridam miesto neho pylon pokia¾ nemám 25 èo je max pre supply
+        int numPylons = BWAPI::Broodwar->self()->allUnitCount(BWAPI::UnitTypes::Protoss_Pylon);
 
-       
-
-
-
-        std::cout << "\nPrintf kde chcem reset BO\n";
-        m_queue.printItems();
-        m_queue.clearAll();
-
-        std::cout << BWAPI::Broodwar->self()->supplyTotal() << " <> " << BWAPI::Broodwar->self()->supplyUsed() << "\n";
-        if (BWAPI::Broodwar->self()->supplyTotal() <= 390 &&
-            !m_buildingManager.isBeingBuilt(BWAPI::UnitTypes::Protoss_Pylon))
+        if (m_queue.isEmpty() == 0)
         {
-            m_queue.queueAsHighestPriority(MetaType(BWAPI::UnitTypes::Protoss_Pylon), true, false);
+            m_queue.removeCurrentHighestPriorityItem();
+        }
+
+         if (numPylons < 25 && !m_queue.anyInQueue(BWAPI::UnitTypes::Protoss_Pylon))
+        {
+            //std::cout << "pridavam pylon\n";
+            m_queue.queueItem(BuildOrderItem(MetaType(BWAPI::UnitTypes::Protoss_Pylon), 2, true, false));
+            //m_queue.queueAsHighestPriority(MetaType(BWAPI::UnitTypes::Protoss_Pylon), true, false);
         }
             
-        
-        m_queue.printItems();
-        std::cout << "\nAfter cleared BO\n";
+    
     }
 
 
@@ -461,8 +453,12 @@ void ProductionManager::update()
         m_queue.queueAsHighestPriority(MetaType(BWAPI::UnitTypes::Protoss_Pylon), true, false);
     }
 
-    if(m_queue.size() > 0 && BWAPI::Broodwar->self()->allUnitCount(BWAPI::UnitTypes::Protoss_Probe) == 0 && m_queue.getHighestPriorityItem().metaType.getUnitType() != BWAPI::UnitTypes::Protoss_Probe)
+    
+
+
+    if (m_queue.size() > 0 && BWAPI::Broodwar->self()->allUnitCount(BWAPI::UnitTypes::Protoss_Probe) < 4 && m_queue.getHighestPriorityItem().metaType.getUnitType() != BWAPI::UnitTypes::Protoss_Probe)
         m_queue.queueAsHighestPriority(MetaType(BWAPI::UnitTypes::Protoss_Probe), true, false);
+
 
 
     
@@ -857,7 +853,7 @@ bool ProductionManager::detectBuildOrderDeadlock()
     if ((supplyAvailable <= supplyCost) && supplyInProgress == false)
     {
 
-        std::cout << "Deadlock supply?\n";
+        //std::cout << "Deadlock supply?\n";
         // if we're zerg, check to see if a building is planned to be built
         if (BWAPI::Broodwar->self()->getRace() == BWAPI::Races::Zerg && m_buildingManager.buildingsQueued().size() > 0)
         {
